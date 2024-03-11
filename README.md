@@ -30,7 +30,7 @@ The logic circuit that is designed and solved is a
 [BCD to 7 segment display decoder][def3]. You can find the 
 truth table and the karnaugh's maps in many website on
 the internet. A basic description of the circuit is that you have 
-4 digits as an input that can be a number from 0 to 9 
+4 binary digits as an input that can be a number from 0 to 9 
 (single digit decimal number) and the output is one of
 7 signals that correspond in a different led display digit.
 

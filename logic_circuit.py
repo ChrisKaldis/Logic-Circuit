@@ -3,7 +3,7 @@ from dwave.system import DWaveSampler, EmbeddingComposite
 
 
 def format_input() -> str:
-    """ Creates the binary representation of a single digit decimal number.
+    """ Creates the binary representation of a single digit decimal number.    
     
         It gets an input from a user and checks if it is an integer that
         represents a single digit, after that it transforms the number 
@@ -29,16 +29,16 @@ def format_input() -> str:
             print("Input must be an integer between [0,9]")
             continue
 
-        binary_user_input = bin(user_input)[2:]
-        length_ = len(binary_user_input)
-        digits = [i for i in binary_user_input]
+        binary_user_input = [i for i in bin(user_input)]
+        # binary numbers starts with 0b in python
+        digits_length = len(binary_user_input) - 2
 
         # In case number is not 8 or 9 it is represented in binary with
         # less than 4 digits so we add zeros in order to have a proper 
         # input in our gates that correspond to contraints.
-        for _ in range(length_, 4):
-            digits.insert(0, '0')
-        binary_user_input = ''.join(digits)
+        for _ in range(digits_length, 4):
+            binary_user_input.insert(2, '0')
+        binary_user_input = ''.join(binary_user_input)
 
         return binary_user_input
 
