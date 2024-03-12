@@ -1,4 +1,5 @@
-import dwavebinarycsp.factories.constraint.gates as gates
+from dimod import BinaryQuadraticModel, quicksum
+from dimod.generators import and_gate, or_gate
 from dwave.system import DWaveSampler, EmbeddingComposite
 
 
@@ -42,16 +43,66 @@ def format_input() -> str:
 
         return binary_user_input
 
-def seven_segment_display_circuit():
-    """Solve the constraint satisfaction problem of the circuit."""
+def a() -> BinaryQuadraticModel:
+    bqm_gate1 = or_gate('A', 'C', 'out1')
+    bqm_gate2 = and_gate('B', 'D', 'out2')
+    bqm_gate3 = and_gate('B', 'D', 'out3')
+    bqm_gate3.flip_variable('B')
+    bqm_gate3.flip_variable('D')
+    bqm_gate4 = or_gate('out2', 'out3', 'out4')
+    bqm_gate5 = or_gate('out1', 'out4', 'a')
+
+    bqm = bqm_gate1 + bqm_gate2 + bqm_gate3 + bqm_gate4 + bqm_gate5
+    return bqm
+
+
+def b() -> BinaryQuadraticModel:
     pass
+
+
+def c() -> BinaryQuadraticModel:
+    pass
+
+
+def d() -> BinaryQuadraticModel:
+    pass
+
+
+def e() -> BinaryQuadraticModel:
+    pass
+
+
+def f() -> BinaryQuadraticModel:
+    pass
+
+
+def g() -> BinaryQuadraticModel:
+    pass
+
+
+def seven_segment_display_circuit() -> BinaryQuadraticModel:
+    """Create the BQM of the circuit."""
+
+    bqm_a = a()
+    bqm_b = b()
+    bqm_c = c()
+    bqm_d = d()
+    bqm_e = e()
+    bqm_f = f()
+    bqm_g = g()
+    
+    bqm = (bqm_a + bqm_b + bqm_c + bqm_d + bqm_e + bqm_f + bqm_g)
+    return bqm
+
 
 def format_output():
     """Represents basic information of the sampler's answer."""
     pass
 
+
 def main():
     pass
+
 
 if __name__ == '__main__':
     main()
