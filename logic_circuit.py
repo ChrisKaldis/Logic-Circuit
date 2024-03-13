@@ -43,7 +43,8 @@ def format_input() -> str:
 
         return binary_user_input
 
-def a() -> BinaryQuadraticModel:
+
+def a_logic_circuit() -> BinaryQuadraticModel:
     bqm_gate1 = or_gate('A', 'C', 'out1')
     bqm_gate2 = and_gate('B', 'D', 'out2')
     bqm_gate3 = and_gate('B', 'D', 'out3')
@@ -52,46 +53,111 @@ def a() -> BinaryQuadraticModel:
     bqm_gate4 = or_gate('out2', 'out3', 'out4')
     bqm_gate5 = or_gate('out1', 'out4', 'a')
 
-    bqm = bqm_gate1 + bqm_gate2 + bqm_gate3 + bqm_gate4 + bqm_gate5
-    return bqm
+    gates = [bqm_gate1, bqm_gate2, bqm_gate3, bqm_gate4, bqm_gate5]
+    return quicksum(gates)
 
 
-def b() -> BinaryQuadraticModel:
-    pass
+def b_logic_circuit() -> BinaryQuadraticModel:
+    bqm_gate1 = and_gate('C', 'D', 'out6')
+    bqm_gate2 = and_gate('C', 'D', 'out7')
+    bqm_gate2.flip_variable('C')
+    bqm_gate2.flip_variable('D')
+    bqm_gate3 = or_gate('B', 'out6', 'out8')
+    bqm_gate3.flip_variable('B')
+    bqm_gate4 = or_gate('out7', 'out8', 'b')
+
+    gates = [bqm_gate1, bqm_gate2, bqm_gate3, bqm_gate4]
+    return quicksum(gates)
 
 
-def c() -> BinaryQuadraticModel:
-    pass
+def c_logic_circuit() -> BinaryQuadraticModel:
+    bqm_gate1 = or_gate('B', 'C', 'out10')
+    bqm_gate1.flip_variable('C')
+    bqm_gate2 = or_gate('D', 'out10', 'c')
+
+    gates = [bqm_gate1, bqm_gate2]
+    return quicksum(gates)
 
 
-def d() -> BinaryQuadraticModel:
-    pass
+def d_logic_circuit() -> BinaryQuadraticModel:
+    bqm_gate1 = and_gate('B', 'D', 'out12')
+    bqm_gate1.flip_variable('B')
+    bqm_gate1.flip_variable('D')
+    bqm_gate2 = and_gate('B', 'C', 'out13')
+    bqm_gate2.flip_variable('B')
+    bqm_gate3 = and_gate('B', 'C', 'out14')
+    bqm_gate3.flip_variable('C')
+    bqm_gate4 = and_gate('C', 'D', 'out15')
+    bqm_gate4.flip_variable('D')
+    bqm_gate5 = or_gate('out12', 'out13', 'out16')
+    bqm_gate6 = and_gate('D', 'out14', 'out17')
+    bqm_gate7 = or_gate('out15', 'out17', 'out19')
+    bqm_gate8 = or_gate('A', 'out16', 'out18')
+    bqm_gate9 = or_gate('out18', 'out19', 'd')
+
+    gates = [
+        bqm_gate1, bqm_gate2, bqm_gate3, bqm_gate4, bqm_gate5, 
+        bqm_gate6, bqm_gate7, bqm_gate8, bqm_gate9
+        ]
+    return quicksum(gates)
 
 
-def e() -> BinaryQuadraticModel:
-    pass
+def e_logic_circuit() -> BinaryQuadraticModel:
+    bqm_gate1 = and_gate('B', 'D', 'out21')
+    bqm_gate1.flip_variable('B')
+    bqm_gate1.flip_variable('D')
+    bqm_gate2 = and_gate('C', 'D', 'out22')
+    bqm_gate2.flip_variable('D')
+    bqm_gate3 = or_gate('out21', 'out22', 'e')
+
+    gates = [bqm_gate1, bqm_gate2, bqm_gate3]
+    return quicksum(gates)
 
 
-def f() -> BinaryQuadraticModel:
-    pass
+def f_logic_circuit() -> BinaryQuadraticModel:
+    bqm_gate1 = and_gate('C', 'D', 'out24')
+    bqm_gate1.flip_variable('C')
+    bqm_gate1.flip_variable('D')
+    bqm_gate2 = and_gate('B', 'C', 'out25')
+    bqm_gate2.flip_variable('C')
+    bqm_gate3 = and_gate('B', 'D', 'out26')
+    bqm_gate3.flip_variable('D')
+    bqm_gate4 = or_gate('A', 'out26', 'out27')
+    bqm_gate5 = or_gate('out27', 'out25', 'out28')
+    bqm_gate6 = or_gate('out28', 'out24', 'f')
+
+    gates = [bqm_gate1, bqm_gate2, bqm_gate3, bqm_gate4, bqm_gate5, bqm_gate6]
+    return quicksum(gates)
 
 
-def g() -> BinaryQuadraticModel:
-    pass
+def g_logic_circuit() -> BinaryQuadraticModel:
+    bqm_gate1 = and_gate('B', 'C', 'out30')
+    bqm_gate1.flip_variable('C')
+    bqm_gate2 = and_gate('C', 'D', 'out31')
+    bqm_gate2.flip_variable('D')
+    bqm_gate3 = and_gate('B', 'C', 'out32')
+    bqm_gate3.flip_variable('B')
+    bqm_gate4 = or_gate('out30', 'out31', 'out33')
+    bqm_gate5 = or_gate('A', 'out32', 'out34')
+    bqm_gate6 = or_gate('out33', 'out34', 'g')
+
+    gates = [bqm_gate1, bqm_gate2, bqm_gate3, bqm_gate4, bqm_gate5, bqm_gate6]
+    return quicksum(gates)
 
 
-def seven_segment_display_circuit() -> BinaryQuadraticModel:
+def seven_segment_display_circuit(input_signal: str) -> BinaryQuadraticModel:
     """Create the BQM of the circuit."""
 
-    bqm_a = a()
-    bqm_b = b()
-    bqm_c = c()
-    bqm_d = d()
-    bqm_e = e()
-    bqm_f = f()
-    bqm_g = g()
-    
-    bqm = (bqm_a + bqm_b + bqm_c + bqm_d + bqm_e + bqm_f + bqm_g)
+    # creates a list with the values of the input in 4 binary values.
+    signal = [int(digit) for i, digit in enumerate(input_signal) if i > 1]
+    bqm = [
+        a_logic_circuit(), b_logic_circuit(), c_logic_circuit(), d_logic_circuit(),
+        e_logic_circuit(), f_logic_circuit(), g_logic_circuit()
+    ]
+    bqm = quicksum(bqm)
+    bqm.fix_variables(
+        [('A', signal[0]), ('B', signal[1]), ('C', signal[2]), ('D', signal[3])]
+    )
     return bqm
 
 
