@@ -1,6 +1,7 @@
-from dimod import BinaryQuadraticModel, quicksum
+from dimod import BinaryQuadraticModel, SampleSet, quicksum, keep_variables
 from dimod.generators import and_gate, or_gate
 from dwave.system import DWaveSampler, EmbeddingComposite
+from numpy import ndarray, zeros
 
 
 def format_input() -> str:
@@ -14,17 +15,15 @@ def format_input() -> str:
         Returns:
             A string that represents a binary number with four digits.
     """
-
     while True:
         user_input = input("Select a single digit number:")
-
         try:
             user_input = int(user_input)
         except ValueError:
             print("Input type must be int")
             continue
 
-        # The cqm is created by a bcd to 7 segment display decoder,
+        # The bqm is created by a bcd to 7 segment display decoder,
         # so input must be in range of a single digit decimal number.
         if user_input not in range(0, 10):
             print("Input must be an integer between [0,9]")
@@ -33,7 +32,6 @@ def format_input() -> str:
         binary_user_input = [i for i in bin(user_input)]
         # binary numbers starts with 0b in python
         digits_length = len(binary_user_input) - 2
-
         # In case number is not 8 or 9 it is represented in binary with
         # less than 4 digits so we add zeros in order to have a proper 
         # input in our gates that correspond to contraints.
@@ -52,8 +50,8 @@ def a_logic_circuit() -> BinaryQuadraticModel:
     bqm_gate3.flip_variable('D')
     bqm_gate4 = or_gate('out2', 'out3', 'out4')
     bqm_gate5 = or_gate('out1', 'out4', 'a')
-
     gates = [bqm_gate1, bqm_gate2, bqm_gate3, bqm_gate4, bqm_gate5]
+
     return quicksum(gates)
 
 
@@ -65,8 +63,8 @@ def b_logic_circuit() -> BinaryQuadraticModel:
     bqm_gate3 = or_gate('B', 'out6', 'out8')
     bqm_gate3.flip_variable('B')
     bqm_gate4 = or_gate('out7', 'out8', 'b')
-
     gates = [bqm_gate1, bqm_gate2, bqm_gate3, bqm_gate4]
+    
     return quicksum(gates)
 
 
@@ -74,8 +72,8 @@ def c_logic_circuit() -> BinaryQuadraticModel:
     bqm_gate1 = or_gate('B', 'C', 'out10')
     bqm_gate1.flip_variable('C')
     bqm_gate2 = or_gate('D', 'out10', 'c')
-
     gates = [bqm_gate1, bqm_gate2]
+
     return quicksum(gates)
 
 
@@ -94,11 +92,11 @@ def d_logic_circuit() -> BinaryQuadraticModel:
     bqm_gate7 = or_gate('out15', 'out17', 'out19')
     bqm_gate8 = or_gate('A', 'out16', 'out18')
     bqm_gate9 = or_gate('out18', 'out19', 'd')
-
     gates = [
         bqm_gate1, bqm_gate2, bqm_gate3, bqm_gate4, bqm_gate5, 
         bqm_gate6, bqm_gate7, bqm_gate8, bqm_gate9
         ]
+    
     return quicksum(gates)
 
 
@@ -109,8 +107,8 @@ def e_logic_circuit() -> BinaryQuadraticModel:
     bqm_gate2 = and_gate('C', 'D', 'out22')
     bqm_gate2.flip_variable('D')
     bqm_gate3 = or_gate('out21', 'out22', 'e')
-
     gates = [bqm_gate1, bqm_gate2, bqm_gate3]
+
     return quicksum(gates)
 
 
@@ -125,8 +123,8 @@ def f_logic_circuit() -> BinaryQuadraticModel:
     bqm_gate4 = or_gate('A', 'out26', 'out27')
     bqm_gate5 = or_gate('out27', 'out25', 'out28')
     bqm_gate6 = or_gate('out28', 'out24', 'f')
-
     gates = [bqm_gate1, bqm_gate2, bqm_gate3, bqm_gate4, bqm_gate5, bqm_gate6]
+    
     return quicksum(gates)
 
 
@@ -140,34 +138,82 @@ def g_logic_circuit() -> BinaryQuadraticModel:
     bqm_gate4 = or_gate('out30', 'out31', 'out33')
     bqm_gate5 = or_gate('A', 'out32', 'out34')
     bqm_gate6 = or_gate('out33', 'out34', 'g')
-
     gates = [bqm_gate1, bqm_gate2, bqm_gate3, bqm_gate4, bqm_gate5, bqm_gate6]
+    
     return quicksum(gates)
 
 
 def seven_segment_display_circuit(input_signal: str) -> BinaryQuadraticModel:
     """Create the BQM of the circuit."""
-
-    # creates a list with the values of the input in 4 binary values.
-    signal = [int(digit) for i, digit in enumerate(input_signal) if i > 1]
+    # collect all bqms for each output signal
     bqm = [
         a_logic_circuit(), b_logic_circuit(), c_logic_circuit(), d_logic_circuit(),
         e_logic_circuit(), f_logic_circuit(), g_logic_circuit()
     ]
     bqm = quicksum(bqm)
+    # creates a list with the values of the input in 4 binary values.
+    signal = [int(digit) for i, digit in enumerate(input_signal) if i > 1]
+    # 
     bqm.fix_variables(
         [('A', signal[0]), ('B', signal[1]), ('C', signal[2]), ('D', signal[3])]
     )
+
     return bqm
 
 
-def format_output():
-    """Represents basic information of the sampler's answer."""
-    pass
+def solve_bqm(
+        bqm: BinaryQuadraticModel, 
+        reads: int=1000, 
+        desc: str='test'
+        ) -> SampleSet:
+    sampler = EmbeddingComposite(DWaveSampler())
+    samples = sampler.sample(bqm, num_reads=reads, label=desc)
+    samples = keep_variables(samples, ['a', 'b', 'c', 'd', 'e', 'f', 'g'])
+    
+    return samples
 
+
+def format_output(samples: SampleSet, rows: int=12, columns: int=6) -> ndarray:
+    """Represents basic information of the sampler's answer."""
+    display = zeros((rows,columns))
+    for key, val in samples.first[0].items():
+        if val == 0:
+            continue
+        elif key == 'a':
+            for i in range(1,columns-1):
+                display[0][i] = 1
+        elif key == 'b':
+            for i in range(1,rows//2):
+                display[i][columns-1] = 1
+        elif key == 'c':
+            for i in range(rows//2+1, rows-1):
+                display[i][columns-1] = 1
+        elif key == 'd':
+            for i in range(1,columns-1):
+                display[rows//2][i] = 1
+        elif key == 'e':
+            for i in range(rows//2+1, rows-1):
+                display[i][0] = 1
+        elif key == 'f':
+            for i in range(1,rows//2):
+                display[i][0] = 1
+        elif key == 'g':
+            for i in range(1,columns-1):
+                display[rows-1][i] = 1
+
+    return display
+
+
+def create_output_file(answer: SampleSet, display: ndarray) -> None:
+    pass
 
 def main():
-    pass
+    user_input = format_input()
+    bqm = seven_segment_display_circuit(user_input)
+    answer = solve_bqm(bqm)
+    # display = format_output(answer)
+    # create_output_file(answer, display)
+    print(answer)
 
 
 if __name__ == '__main__':
