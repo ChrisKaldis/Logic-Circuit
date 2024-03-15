@@ -9,7 +9,7 @@ household appliances and it is usually analyzed in
 logic circuit design books. This repository is based on
 the [factoring][def1] example that has similar logic.
 
-## Set up the Enviroment
+## Set up the Enviroment for Developing
 
 For the project development it was used a virtual enviroment.
 Below you can see the commands that i used in my linux based
@@ -31,12 +31,34 @@ The logic circuit that is designed and solved is a
 truth table and the karnaugh's maps in many website on
 the internet. A basic description of the circuit is that you have 
 4 binary digits as an input that can be a number from 0 to 9 
-(single digit decimal number) and the output is one of
+(single digit decimal number) and the output is a combination of
 7 signals that correspond in a different led display digit.
 
 Like the factoring example we transform the circuit into a
-constraint satisfaction problem that as we know D-Wave's 
+binary quadratic problem that as we know D-Wave's 
 quantum computer is capable of solving.
+
+### Structure of code
+
+The different parts of the code can be summarized into the functions
+that main() calls and are shown below:
+
+```python
+def main():
+    user_input = format_input()
+    bqm = seven_segment_display_circuit(user_input)
+    answer = solve_bqm(bqm, desc=f'Circuit ABCD:{user_input[2:]}')
+    display = format_output(answer)
+    create_output_file(answer, display)
+```
+
+So in format_input() the user input is formulated properly for the 
+creation of the Binary Quadratic Model that is being made in 
+seven_segment_display_circuit(). After that a solver which is a 
+quantum sampler is called and we get an answer that are the 
+samples of the BQM, format_output() creates an array for a 
+minimal graphic display representation and create_output_file()
+gather other the information of the code in a file.
 
 [def0]: https://docs.ocean.dwavesys.com/en/stable/overview/install.html
 [def1]: https://github.com/dwave-examples/factoring
