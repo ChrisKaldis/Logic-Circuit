@@ -33,10 +33,7 @@ The binary quadratic model (BQM) class encodes Ising and quadratic unconstrained
 
 The BQM equation,
 
-$
-E(v) = \sum_{i=1} a_iv_i + \sum_{i<j} b_{i,j}v_iv_j + c, \quad v_i \in 
-\{-1, +1\} \quad \text{or} \quad \{0, 1\}   
-$
+$E(v) = \sum_{i=1} a_iv_i + \sum_{i<j} b_{i,j}v_iv_j + c, \quad v_i \in \{-1, +1\} \quad \text{or} \quad \{0, 1\}$
 
 read more in the [concepts page][def4].
 
