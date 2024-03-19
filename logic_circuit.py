@@ -1,7 +1,7 @@
 from dimod import BinaryQuadraticModel, SampleSet, quicksum, keep_variables
 from dimod.generators import and_gate, or_gate
 from dwave.system import DWaveSampler, EmbeddingComposite
-from numpy import ndarray, zeros, savetxt
+from numpy import ndarray, zeros
 
 
 def format_input() -> str:
@@ -172,10 +172,18 @@ def seven_segment_display_circuit(input_signal: str) -> BinaryQuadraticModel:
             A dimod.BinaryQuadraticModel corresponds to the BCD to 7
             segment display decoder for a specific input.  
     """
-    # collects all bqms for each output signal.
+    # Collects all bqms for each output signal.
+    # Actually the output of each signal a, b, ... are independent but,
+    # there are two reason to combine the bqms:
+    # 1) Below the input of the circuit is fixed to the user input so 
+    #   we don't have to fix the variables for each model.
+    # 2) Most of the run time is at to set up the connection with 
+    #   the d wave sampler not the actual solving so it is preferred to 
+    #   call only one bqm. 
     bqm = quicksum(
-        [a_logic_circuit(), b_logic_circuit(), c_logic_circuit(), d_logic_circuit(),
-         e_logic_circuit(), f_logic_circuit(), g_logic_circuit()]
+        [a_logic_circuit(), b_logic_circuit(), c_logic_circuit(), 
+         d_logic_circuit(), e_logic_circuit(), f_logic_circuit(), 
+         g_logic_circuit()]
     )
     # creates a list with the values of the input in 4 binary values.
     signal = [int(digit) for i, digit in enumerate(input_signal) if i > 1]
@@ -257,17 +265,30 @@ def format_output(
 
 
 def create_output_file(answer: SampleSet, display: ndarray) -> None:
-    """ Writes the results of the code into a file."""
+    """ Writes the results of the code into a file.
+    
+        It opens or creates a file named output.txt and writes the final
+        results of the code that are composed of two parts. The first one 
+        is an ndarray that looks like a 7 segment display and the second one
+        is a sample set that kept all the information about the output of the 
+        circuit from the sampler.
+
+        Args:
+            answer: The output of the circuit with basic informations like
+                    enrgy, num_oc, chain_.
+            display: An array that has 1 where the leds of the display is on. 
+    """
     with open('output.txt', 'w') as f:
-        f.write('The display is:\n\n')
-        rows = []
+        rows = ['The display is:\n\n']
         for row in display:
             single_row = [str(i) if i == 1 else '   ' for i in row]
             rows.append(' '.join(single_row))
         display_string = '\n'.join(rows)
         f.write(display_string)
-        f.write('\n\nThe Results from the sampler are below.\n\n')
-        f.write(str(answer))
+        answer_string = ['\n\nThe Results from the sampler are below.\n\n']
+        answer_string.append(str(answer))
+        answer_string = '\n'.join(answer_string)
+        f.write(answer_string)
 
 
 def main():
