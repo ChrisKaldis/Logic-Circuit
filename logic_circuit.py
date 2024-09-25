@@ -34,7 +34,7 @@ def format_input() -> str:
         digits_length = len(binary_user_input) - 2
         # In case number is not 8 or 9 it is represented in binary with
         # less than 4 digits so we add zeros in order to have a proper 
-        # input in our gates that correspond to contraints.
+        # input in our binary quadratic problem.
         for _ in range(digits_length, 4):
             binary_user_input.insert(2, '0')
         binary_user_input = ''.join(binary_user_input)
@@ -177,7 +177,7 @@ def seven_segment_display_circuit(input_signal: str) -> BinaryQuadraticModel:
     # there are two reason to combine the bqms:
     # 1) Below the input of the circuit is fixed to the user input so 
     #   we don't have to fix the variables for each model.
-    # 2) Most of the run time is at to set up the connection with 
+    # 2) Most of the run time is during the setting up the connection with 
     #   the d wave sampler not the actual solving so it is preferred to 
     #   call only one bqm. 
     bqm = quicksum(
@@ -253,13 +253,13 @@ def format_output(
         elif key == 'c':
             display[rows//2+1:rows-1 , columns-1] = 1
         elif key == 'd':
-            display[rows//2 , 1:columns-1] = 1
+            display[rows-1 , 1:columns-1] = 1
         elif key == 'e':
             display[rows//2+1:rows-1 , 0] = 1
         elif key == 'f':
             display[1:rows//2 , 0] = 1
         elif key == 'g':
-            display[rows-1 , 1:columns-1] = 1
+            display[rows//2 , 1:columns-1] = 1
 
     return display
 
